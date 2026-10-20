@@ -2109,5 +2109,316 @@ event.target.textContent = visibleAllRegions ? "Скрыть часть →" : "
     renderRoute();
     updateCounters();
   </script>
+  <!-- ИИ-чат Рус Гида -->
+<button class="ai-chat-button" id="aiChatButton" aria-label="Открыть чат с Рус Гидом">
+  💬 
+</button>
+
+<section class="ai-chat" id="aiChat" aria-hidden="true">
+  <div class="ai-chat-header">
+    <div>
+      <strong>Рус Гид AI</strong>
+      <small>Помогу спланировать поездку</small>
+    </div>
+
+    <button class="ai-chat-close" id="aiChatClose" aria-label="Закрыть чат">
+      ×
+    </button>
+  </div>
+
+  <div class="ai-chat-messages" id="aiChatMessages">
+    <div class="ai-message ai-message-bot">
+      Привет! Я Рус Гид 👋 <br><br>
+      Помогу выбрать город, маршрут, музей, кафе или интересное место в России.
+    </div>
+  </div>
+
+  <form class="ai-chat-form" id="aiChatForm">
+    <input
+      id="aiChatInput"
+      type="text"
+      placeholder="Куда поехать на выходные?"
+      maxlength="2000"
+      autocomplete="off"
+      required
+    >
+    <button type="submit" aria-label="Отправить сообщение">➤</button>
+  </form>
+</section>
+
+<style>
+  .ai-chat-button {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 100;
+    display: grid;
+    width: 60px;
+    height: 60px;
+    color: #fff;
+    background: #df754d;
+    border: 0;
+    border-radius: 50%;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, .22);
+    cursor: pointer;
+    place-items: center;
+    font-size: 25px;
+    transition: transform .25s ease, background .25s ease;
+  }
+
+  .ai-chat-button:hover {
+    background: #315b42;
+    transform: scale(1.1) rotate(-6deg);
+  }
+
+  .ai-chat {
+    position: fixed;
+    right: 24px;
+    bottom: 97px;
+    z-index: 100;
+    display: none;
+    width: min(385px, calc(100vw - 32px));
+    overflow: hidden;
+    color: #15271e;
+    background: #fff;
+    border: 1px solid #e2e7e0;
+    border-radius: 20px;
+    box-shadow: 0 20px 65px rgba(0, 0, 0, .25);
+  }
+
+  .ai-chat.open {
+    display: block;
+    animation: aiChatAppear .25s ease;
+  }
+
+  .ai-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    color: #fff;
+    background: #315b42;
+  }
+
+  .ai-chat-header strong,
+  .ai-chat-header small {
+    display: block;
+  }
+
+  .ai-chat-header strong {
+    font-size: 14px;
+  }
+
+  .ai-chat-header small {
+    margin-top: 3px;
+    color: rgba(255, 255, 255, .72);
+    font-size: 10px;
+  }
+
+  .ai-chat-close {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    color: #fff;
+    background: rgba(255, 255, 255, .12);
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    place-items: center;
+    font-size: 24px;
+  }
+
+  .ai-chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 330px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f7f2;
+  }
+
+  .ai-message {
+    max-width: 87%;
+    padding: 11px 13px;
+    border-radius: 14px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  .ai-message-bot {
+    align-self: flex-start;
+    background: #e8f0e7;
+    border-bottom-left-radius: 4px;
+  }
+
+  .ai-message-user {
+    align-self: flex-end;
+    color: #fff;
+    background: #df754d;
+    border-bottom-right-radius: 4px;
+  }
+
+  .ai-message-loading {
+    color: #6c7b70;
+    font-style: italic;
+  }
+
+  .ai-chat-form {
+    display: flex;
+    gap: 8px;
+    padding: 11px;
+    background: #fff;
+    border-top: 1px solid #e2e7e0;
+  }
+
+  .ai-chat-form input {
+    min-width: 0;
+    flex: 1;
+    padding: 12px;
+    color: #15271e;
+    background: #fff;
+    border: 1px solid #d9e1d8;
+    border-radius: 11px;
+    outline: 0;
+    font-size: 12px;
+  }
+
+  .ai-chat-form input:focus {
+    border-color: #df754d;
+  }
+
+  .ai-chat-form button {
+    width: 44px;
+    color: #fff;
+    background: #df754d;
+    border: 0;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .ai-chat-form button:disabled {
+    cursor: wait;
+    opacity: .6;
+  }
+
+  @keyframes aiChatAppear {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(.96);
+    }
+to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .ai-chat-button {
+      right: 16px;
+      bottom: 16px;
+    }
+
+    .ai-chat {
+      right: 16px;
+      bottom: 87px;
+    }
+  }
+</style>
+
+<script>
+  const chatButton = document.getElementById("aiChatButton");
+  const chatWindow = document.getElementById("aiChat");
+  const chatClose = document.getElementById("aiChatClose");
+  const chatForm = document.getElementById("aiChatForm");
+  const chatInput = document.getElementById("aiChatInput");
+  const chatMessages = document.getElementById("aiChatMessages");
+  const sendButton = chatForm.querySelector("button");
+
+  const chatHistory = [];
+
+  function addChatMessage(text, type, extraClass = "") {
+    const message = document.createElement("div");
+    message.className = `ai-message ai-message-${type} ${extraClass}`;
+    message.textContent = text;
+    chatMessages.appendChild(message);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return message;
+  }
+
+  chatButton.addEventListener("click", () => {
+    chatWindow.classList.add("open");
+    chatWindow.setAttribute("aria-hidden", "false");
+    chatInput.focus();
+  });
+
+  chatClose.addEventListener("click", () => {
+    chatWindow.classList.remove("open");
+    chatWindow.setAttribute("aria-hidden", "true");
+  });
+
+  chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const text = chatInput.value.trim();
+
+    if (!text) return;
+
+    addChatMessage(text, "user");
+    chatHistory.push({ role: "user", text });
+
+    chatInput.value = "";
+    chatInput.disabled = true;
+    sendButton.disabled = true;
+
+    const loadingMessage = addChatMessage(
+      "Рус Гид думает…",
+      "bot",
+      "ai-message-loading"
+    );
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messages: chatHistory
+        })
+      });
+
+      const data = await response.json();
+
+      loadingMessage.remove();
+
+      if (!response.ok || !data.answer) {
+        throw new Error(data.error || "Не удалось получить ответ");
+      }
+
+      addChatMessage(data.answer, "bot");
+      chatHistory.push({
+        role: "assistant",
+        text: data.answer
+      });
+    } catch (error) {
+      loadingMessage.remove();
+
+      addChatMessage(
+        "Не удалось получить ответ. Попробуй ещё раз немного позже.",
+        "bot"
+      );
+
+      console.error(error);
+    } finally {
+      chatInput.disabled = false;
+      sendButton.disabled = false;
+      chatInput.focus();
+    }
+  });
+</script>
 </body>
 </html>
