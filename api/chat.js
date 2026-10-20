@@ -1,42 +1,47 @@
-export default async function handler(request, response) {
-  if (request.method !== "POST") {
-    return response.status(405).json({
-      error: "Разрешён только POST-запрос"
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Only POST is allowed" });
+  }
+
+  const apiKey = process.env.YANDEX_API_KEY;
+  const folderId = process.env.YANDEX_FOLDER_ID;
+
+  if (!apiKey || !folderId) {
+    console.error("Missing YANDEX_API_KEY or YANDEX_FOLDER_ID");
+
+    return res.status(500).json({
+      error: "Переменные Yandex Cloud не найдены"
     });
   }
 
   try {
-    const { messages } = request.body || {};
+    const body = req.body || {};
+    const incomingMessages = Array.isArray(body.messages)
+      ? body.messages
+      : [];
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return response.status(400).json({
-        error: "Сообщения не переданы"
-      });
-    }
-
-    const apiKey = process.env.YANDEX_API_KEY;
-    const folderId = process.env.YANDEX_FOLDER_ID;
-
-    if (!apiKey || !folderId) {
-      console.error("Не найдены YANDEX_API_KEY или YANDEX_FOLDER_ID");
-
-      return response.status(500).json({
-        error: "Переменные Yandex Cloud не настроены"
-      });
-    }
-
-    const safeMessages = messages
+    const messages = incomingMessages
       .filter((message) => {
         return (
           message &&
-          ["user", "assistant"].includes(message.role) &&
+          (message.role === "user" || message.role === "assistant") &&
           typeof message.text === "string" &&
           message.text.trim()
         );
       })
-      .slice(-12);
+      .slice(-10)
+      .map((message) => ({
+        role: message.role,
+        text: message.text.trim()
+      }));
 
-    const result = await fetch(
+    if (messages.length === 0) {
+      return res.status(400).json({
+        error: "Сообщение отсутствует"
+      });
+    }
+
+    const yandexResponse = await fetch(
       "https://ai.api.cloud.yandex.net/foundationModels/v1/completion",
       {
         method: "POST",
@@ -54,42 +59,43 @@ export default async function handler(request, response) {
           messages: [
             {
               role: "system",
-              text: "Ты — Рус Гид, дружелюбный консультант по путешествиям по России. Отвечай на русском языке. Помогай выбирать города, достопримечательности и маршруты. Не выдумывай точные цены и расписания."
+              text: "Ты — Рус Гид, дружелюбный консультант по путешествиям по России. Отвечай на русском языке. Помогай выбирать города, достопримечательности и маршруты. Отвечай понятно и не выдумывай точные цены и расписания."
             },
-            ...safeMessages
+            ...messages
           ]
         })
       }
     );
 
-    const data = await result.json();
+    const data = await yandexResponse.json();
 
-    if (!result.ok) {
-      console.error("Yandex error:", result.status, data);
+    if (!yandexResponse.ok) {
+      console.error("Yandex status:", yandexResponse.status);
+      console.error("Yandex response:", data);
 
-      return response.status(502).json({
-        error: "YandexGPT вернул ошибку"
+      return res.status(502).json({
+        error: "Ошибка YandexGPT",
+        status: yandexResponse.status
       });
     }
 
-    const answer = data.alternatives?.[0]?.message?.text;
+    const answer =
+      data.result?.alternatives?.[0]?.message?.text;
 
     if (!answer) {
-      console.error("Пустой ответ YandexGPT:", data);
+      console.error("Unexpected Yandex response:", data);
 
-      return response.status(502).json({
-        error: "YandexGPT вернул пустой ответ"
+      return res.status(502).json({
+        error: "YandexGPT не вернул текст"
       });
     }
 
-    return response.status(200).json({ answer });
+    return res.status(200).json({ answer });
   } catch (error) {
-    console.error("Chat error:", error);
+    console.error("Function error:", error);
 
-    return response.status(500).json({
+    return res.status(500).json({
       error: "Ошибка серверной функции"
     });
   }
 }
-
-
