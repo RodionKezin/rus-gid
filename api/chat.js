@@ -1,100 +1,106 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Only POST is allowed" });
-  }
-
-  const apiKey = process.env.YANDEX_API_KEY;
-  const folderId = process.env.YANDEX_FOLDER_ID;
-
-  if (!apiKey || !folderId) {
-    console.error("Missing YANDEX_API_KEY or YANDEX_FOLDER_ID");
-
-    return res.status(500).json({
-      error: "Переменные Yandex Cloud не найдены"
+export default async function handler(request, response) {
+  if (request.method !== "POST") {
+    return response.status(405).json({
+      error: "Разрешён только POST-запрос"
     });
   }
 
   try {
-    const body = req.body || {};
-    const incomingMessages = Array.isArray(body.messages)
-      ? body.messages
-      : [];
+    const { messages } = request.body || {};
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    const messages = incomingMessages
-      .filter((message) => {
-        return (
-          message &&
-          (message.role === "user" || message.role === "assistant") &&
-          typeof message.text === "string" &&
-          message.text.trim()
-        );
-      })
-      .slice(-10)
-      .map((message) => ({
-        role: message.role,
-        text: message.text.trim()
-      }));
-
-    if (messages.length === 0) {
-      return res.status(400).json({
-        error: "Сообщение отсутствует"
+    if (!apiKey) {
+      return response.status(500).json({
+        error: "В Vercel не найден GEMINI_API_KEY"
       });
     }
 
-    const yandexResponse = await fetch(
-      "https://ai.api.cloud.yandex.net/foundationModels/v1/completion",
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return response.status(400).json({
+        error: "Сообщения не переданы"
+      });
+    }
+
+    const contents = [
+      {
+        role: "user",
+        parts: [
+          {
+            text:
+              "Ты — Рус Гид, дружелюбный консультант по путешествиям по России. " +
+              "Отвечай на русском языке. Помогай выбирать города, " +
+              "достопримечательности, кафе и маршруты. " +
+              "Не выдумывай точные цены и расписания."
+          }
+        ]
+      },
+      ...messages
+        .filter((message) => {
+          return (
+            message &&
+            typeof message.text === "string" &&
+            message.text.trim() &&
+            ["user", "assistant"].includes(message.role)
+          );
+        })
+        .slice(-12)
+        .map((message) => ({
+          role: message.role === "assistant" ? "model" : "user",
+          parts: [
+            {
+              text: message.text
+            }
+          ]
+        }))
+    ];
+
+    const result = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Api-Key ${apiKey}`
+          "x-goog-api-key": apiKey
         },
         body: JSON.stringify({
-          modelUri: `gpt://${folderId}/yandexgpt/latest`,
-          completionOptions: {
-            stream: false,
-            temperature: 0.6,
-            maxTokens: "700"
-          },
-          messages: [
-            {
-              role: "system",
-              text: "Ты — Рус Гид, дружелюбный консультант по путешествиям по России. Отвечай на русском языке. Помогай выбирать города, достопримечательности и маршруты. Отвечай понятно и не выдумывай точные цены и расписания."
-            },
-            ...messages
-          ]
+          contents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 700
+          }
         })
       }
     );
 
-    const data = await yandexResponse.json();
+    const data = await result.json();
 
-    if (!yandexResponse.ok) {
-      console.error("Yandex status:", yandexResponse.status);
-      console.error("Yandex response:", data);
+    if (!result.ok) {
+      console.error("Gemini error:", result.status, data);
 
-      return res.status(502).json({
-        error: "Ошибка YandexGPT",
-        status: yandexResponse.status
+      return response.status(502).json({
+        error: "Gemini вернул ошибку"
       });
     }
 
     const answer =
-      data.result?.alternatives?.[0]?.message?.text;
+      data.candidates?.[0]?.content?.parts
+        ?.map((part) => part.text || "")
+        .join("")
+        .trim();
 
     if (!answer) {
-      console.error("Unexpected Yandex response:", data);
+      console.error("Gemini returned empty answer:", data);
 
-      return res.status(502).json({
-        error: "YandexGPT не вернул текст"
+      return response.status(502).json({
+        error: "Gemini вернул пустой ответ"
       });
     }
 
-    return res.status(200).json({ answer });
+    return response.status(200).json({ answer });
   } catch (error) {
-    console.error("Function error:", error);
+    console.error("Chat error:", error);
 
-    return res.status(500).json({
+    return response.status(500).json({
       error: "Ошибка серверной функции"
     });
   }
