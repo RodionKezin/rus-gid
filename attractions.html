@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Достопримечательности России — Рус Гид</title>
+
+  <style>
+    :root {
+      --ink: #17213f;
+      --muted: #6d7891;
+      --blue: #2367ff;
+      --violet: #7047eb;
+      --orange: #ff7a26;
+      --line: #e8ecf4;
+      --soft: #f5f7fc;
+      --shadow: 0 18px 45px rgba(26, 48, 110, .13);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--soft);
+      color: var(--ink);
+      font-family: Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .93);
+      backdrop-filter: blur(15px);
+    }
+
+    .header-inner,
+    .container {
+      width: min(1180px, calc(100% - 36px));
+      margin: auto;
+    }
+
+    .header-inner {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 21px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: white;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .nav a {
+      padding: 9px 12px;
+      border-radius: 11px;
+      color: #52607e;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      background: #edf2ff;
+      color: var(--blue);
+    }
+
+    .hero {
+      padding: 70px 0 52px;
+      background:
+        radial-gradient(circle at 84% 12%, rgba(255, 188, 48, .32), transparent 28%),
+        linear-gradient(135deg, #edf3ff, #fff4e8);
+    }
+
+    .label {
+      margin: 0 0 12px;
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(40px, 7vw, 75px);
+      line-height: .98;
+      letter-spacing: -3px;
+    }
+
+    .intro {
+      max-width: 680px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.65;
+    }
+
+    .content {
+      padding: 58px 0 90px;
+    }
+
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .tools input {
+      flex: 1 1 300px;
+      min-height: 48px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      outline: 0;
+      background: white;
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .tools input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(35, 103, 255, .1);
+    }
+
+    .filter {
+      min-height: 48px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+      color: #5e6b86;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter.active,
+    .filter:hover {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: white;
+    }
+
+    .attraction-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .attraction-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: white;
+      box-shadow: 0 8px 22px rgba(33, 57, 120, .07);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .attraction-card:hover {
+      transform: translateY(-7px);
+      box-shadow: var(--shadow);
+    }
+
+    .attraction-card.hidden {
+display: none;
+    }
+
+    .attraction-card img {
+      width: 100%;
+      height: 190px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .card-info {
+      padding: 18px;
+    }
+
+    .card-info h2 {
+      margin: 0 0 7px;
+      font-size: 21px;
+    }
+
+    .location {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .card-info p {
+      min-height: 58px;
+      margin: 0 0 15px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .card-link {
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .empty {
+      display: none;
+      padding: 32px;
+      border-radius: 20px;
+      background: white;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer {
+      padding: 30px 0;
+      background: #182442;
+      color: #bec8dd;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1000px) {
+      .attraction-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 700px) {
+      .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 15px 0;
+      }
+
+      .nav {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+
+      .attraction-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .attraction-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before {
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">✦</span>
+        <span>Рус Гид</span>
+      </a>
+
+      <nav class="nav" aria-label="Главное меню">
+        <a href="index.html">Главная</a>
+        <a href="cities.html">Города</a>
+        <a href="regions.html">Регионы</a>
+        <a class="active" href="attractions.html">Места</a>
+        <a href="routes.html">Маршруты</a>
+        <a href="food.html">Еда</a>
+        <a href="map.html">Карта</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="label">Главные впечатления страны</p>
+
+        <h1>Достопримечательности России</h1>
+
+        <p class="intro">
+          От древних кремлей и императорских дворцов
+          до вулканов, озёр и бескрайних природных локаций.
+        </p>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="container">
+        <div class="tools">
+          <input
+            id="search"
+            type="search"
+            placeholder="Найти место..."
+            aria-label="Найти достопримечательность"
+          >
+
+          <button class="filter active" data-filter="all">Все</button>
+          <button class="filter" data-filter="architecture">Архитектура</button>
+          <button class="filter" data-filter="nature">Природа</button>
+          <button class="filter" data-filter="museum">Музеи</button>
+          <button class="filter" data-filter="history">История</button>
+          <button class="filter" data-filter="mountains">Горы</button>
+          <button class="filter" data-filter="sea">Море</button>
+        </div>
+
+        <div class="attraction-grid" id="attractionGrid">
+          <article class="attraction-card" data-category="architecture history">
+            <img
+              src="https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=900&q=80"
+              alt="Московский Кремль"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Московский Кремль</h2>
+              <span class="location">Москва</span>
+              <p>Символ столицы, древние стены, соборы и история государства.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+</div>
+          </article>
+
+          <article class="attraction-card" data-category="museum history">
+            <img
+              src="https://images.unsplash.com/photo-1561214115-f2f134cc4912?auto=format&fit=crop&w=900&q=80"
+              alt="Эрмитаж"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Эрмитаж</h2>
+              <span class="location">Санкт-Петербург</span>
+              <p>Один из главных музеев мира в интерьерах Зимнего дворца.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+
+          <article class="attraction-card" data-category="nature">
+            <img
+              src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80"
+              alt="Озеро Байкал"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Озеро Байкал</h2>
+              <span class="location">Иркутская область</span>
+              <p>Простор, чистый воздух, ледяные пейзажи и уникальная природа.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+
+          <article class="attraction-card" data-category="architecture history">
+            <img
+              src="https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=900&q=80"
+              alt="Казанский кремль"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Казанский кремль</h2>
+              <span class="location">Казань</span>
+              <p>Исторический центр города и место встречи разных культур.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+
+          <article class="attraction-card" data-category="nature mountains">
+            <img
+              src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=80"
+              alt="Камчатские вулканы"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Вулканы Камчатки</h2>
+              <span class="location">Камчатский край</span>
+              <p>Вулканы, океан, горячие источники и сильнейшие впечатления.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+
+          <article class="attraction-card" data-category="history architecture">
+            <img
+              src="https://images.unsplash.com/photo-1473177104440-ffee2f376098?auto=format&fit=crop&w=900&q=80"
+              alt="Мамаев курган"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Мамаев курган</h2>
+              <span class="location">Волгоград</span>
+              <p>Монументальный мемориальный комплекс с видом на город.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+
+          <article class="attraction-card" data-category="nature sea">
+            <img
+              src="https://images.unsplash.com/photo-1565610222536-ef125c59da2e?auto=format&fit=crop&w=900&q=80"
+              alt="Куршская коса"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Куршская коса</h2>
+              <span class="location">Калининградская область</span>
+              <p>Дюны, лес, Балтийское море и удивительный природный ландшафт.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+
+          <article class="attraction-card" data-category="architecture history">
+            <img
+              src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=80"
+              alt="Мечеть Кул-Шариф"
+              loading="lazy"
+            >
+            <div class="card-info">
+              <h2>Мечеть Кул-Шариф</h2>
+<span class="location">Казань</span>
+              <p>Один из самых узнаваемых архитектурных символов Татарстана.</p>
+              <a class="card-link" href="#">Подробнее →</a>
+            </div>
+          </article>
+        </div>
+
+        <div class="empty" id="emptyMessage">
+          По вашему запросу места не найдены.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      © 2026 Рус Гид — путешествия по России
+    </div>
+  </footer>
+
+  <script>
+    const search = document.getElementById("search");
+    const cards = [...document.querySelectorAll(".attraction-card")];
+    const filters = [...document.querySelectorAll(".filter")];
+    const empty = document.getElementById("emptyMessage");
+
+    let activeFilter = "all";
+
+    function updateAttractions() {
+      const query = search.value.trim().toLowerCase();
+      let count = 0;
+
+      cards.forEach((card) => {
+        const text = card.textContent.toLowerCase();
+        const category = card.dataset.category;
+
+        const matchesQuery = !query || text.includes(query);
+        const matchesFilter =
+          activeFilter === "all" || category.includes(activeFilter);
+
+        const visible = matchesQuery && matchesFilter;
+
+        card.classList.toggle("hidden", !visible);
+
+        if (visible) {
+          count++;
+        }
+      });
+
+      empty.style.display = count === 0 ? "block" : "none";
+    }
+
+    search.addEventListener("input", updateAttractions);
+
+    filters.forEach((filter) => {
+      filter.addEventListener("click", () => {
+        filters.forEach((item) => item.classList.remove("active"));
+        filter.classList.add("active");
+
+        activeFilter = filter.dataset.filter;
+        updateAttractions();
+      });
+    });
+  </script>
+</body>
+</html>
