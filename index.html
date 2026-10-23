@@ -1144,7 +1144,135 @@ border-top: 1px solid rgba(255,255,255,.1);
         bottom: 14px;
       }
     }
+    .hero {
+      isolation: isolate;
+    }
 
+    .hero-slides {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      background-position: center;
+      background-size: cover;
+      transition: opacity .8s ease, visibility .8s ease;
+    }
+
+    .hero-slide.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .hero-slide::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background:
+        linear-gradient(90deg, rgba(13, 24, 64, .88), rgba(14, 26, 72, .42), rgba(20, 28, 65, .1)),
+        linear-gradient(0deg, rgba(10, 18, 48, .45), transparent 58%);
+    }
+
+    .slide-spb {
+      background-image: url("https://images.unsplash.com/photo-1556610961-2fecc5927173?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-moscow {
+      background-image: url("https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-baikal {
+      background-image: url("https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-kamchatka {
+      background-image: url("https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-altai {
+      background-image: url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-karelia {
+      background-image: url("https://images.unsplash.com/photo-1529963183134-61a90db47eaf?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-caucasus {
+      background-image: url("https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .slide-kaliningrad {
+      background-image: url("https://images.unsplash.com/photo-1565610222536-ef125c59da2e?auto=format&fit=crop&w=2200&q=86");
+    }
+
+    .hero-carousel-controls {
+      position: absolute;
+      z-index: 4;
+      right: 0;
+      bottom: 24px;
+      left: 0;
+      width: min(1180px, calc(100% - 36px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: auto;
+    }
+
+    .carousel-actions,
+    .carousel-dots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .carousel-button {
+      min-width: 43px;
+      height: 43px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 13px;
+      background: rgba(10,18,48,.38);
+      color: #fff;
+      font-weight: 800;
+      backdrop-filter: blur(9px);
+    }
+
+    .carousel-button:hover {
+      background: rgba(255,255,255,.22);
+    }
+
+    .carousel-dot {
+      width: 9px;
+      height: 9px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,.48);
+    }
+
+    .carousel-dot.active {
+      width: 26px;
+      background: #fff;
+    }
+
+    @media (max-width: 680px) {
+      .hero-carousel-controls {
+        bottom: 16px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .carousel-dots {
+        max-width: 100%;
+        overflow-x: auto;
+      }
+    }
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -1153,6 +1281,9 @@ border-top: 1px solid rgba(255,255,255,.1);
         transition-duration: .01ms !important;
         animation-duration: .01ms !important;
       }
+    }
+        .hero {
+      background: #17213f !important;
     }
   </style>
 </head>
@@ -1188,6 +1319,35 @@ border-top: 1px solid rgba(255,255,255,.1);
 
   <main id="main-content">
     <section class="hero" aria-label="Начало путешествия">
+            <div class="hero-slides" id="hero-slides" aria-hidden="true">
+        <div class="hero-slide slide-spb active"></div>
+        <div class="hero-slide slide-moscow"></div>
+        <div class="hero-slide slide-baikal"></div>
+        <div class="hero-slide slide-kamchatka"></div>
+        <div class="hero-slide slide-altai"></div>
+        <div class="hero-slide slide-karelia"></div>
+        <div class="hero-slide slide-caucasus"></div>
+        <div class="hero-slide slide-kaliningrad"></div>
+      </div>
+
+      <div class="hero-carousel-controls" aria-label="Управление слайдером">
+        <div class="carousel-actions">
+          <button class="carousel-button" id="carousel-prev" type="button" aria-label="Предыдущее направление">←</button>
+          <button class="carousel-button" id="carousel-next" type="button" aria-label="Следующее направление">→</button>
+          <button class="carousel-button" id="carousel-pause" type="button" aria-label="Остановить слайдер">Пауза</button>
+        </div>
+
+        <div class="carousel-dots" aria-label="Выбор направления">
+          <button class="carousel-dot active" type="button" data-slide="0" aria-label="Санкт-Петербург"></button>
+          <button class="carousel-dot" type="button" data-slide="1" aria-label="Москва"></button>
+          <button class="carousel-dot" type="button" data-slide="2" aria-label="Байкал"></button>
+          <button class="carousel-dot" type="button" data-slide="3" aria-label="Камчатка"></button>
+          <button class="carousel-dot" type="button" data-slide="4" aria-label="Алтай"></button>
+          <button class="carousel-dot" type="button" data-slide="5" aria-label="Карелия"></button>
+          <button class="carousel-dot" type="button" data-slide="6" aria-label="Кавказ"></button>
+          <button class="carousel-dot" type="button" data-slide="7" aria-label="Калининград"></button>
+        </div>
+      </div>
       <div class="container hero-content">
         <div class="eyebrow">✦ Россия ближе, чем кажется</div>
         <h1>Собирай <span>впечатления</span>, а не просто чемодан.</h1>
@@ -1674,6 +1834,90 @@ throw new Error(data.error || "Не удалось получить ответ")
     });
 
     updateFavorites();
+        const heroSection = document.querySelector(".hero");
+    const heroSlides = [...document.querySelectorAll(".hero-slide")];
+    const carouselDots = [...document.querySelectorAll(".carousel-dot")];
+    const carouselPrev = document.getElementById("carousel-prev");
+    const carouselNext = document.getElementById("carousel-next");
+    const carouselPause = document.getElementById("carousel-pause");
+
+    let currentHeroSlide = 0;
+    let carouselPaused = false;
+    let carouselTimer;
+
+    function showHeroSlide(index) {
+      currentHeroSlide = (index + heroSlides.length) % heroSlides.length;
+
+      heroSlides.forEach((slide, slideIndex) => {
+        slide.classList.toggle("active", slideIndex === currentHeroSlide);
+      });
+
+      carouselDots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("active", dotIndex === currentHeroSlide);
+      });
+    }
+
+    function startHeroCarousel() {
+      window.clearInterval(carouselTimer);
+
+      if (!carouselPaused) {
+        carouselTimer = window.setInterval(() => {
+          showHeroSlide(currentHeroSlide + 1);
+        }, 6000);
+      }
+    }
+
+    carouselPrev.addEventListener("click", () => {
+      showHeroSlide(currentHeroSlide - 1);
+      startHeroCarousel();
+    });
+
+    carouselNext.addEventListener("click", () => {
+      showHeroSlide(currentHeroSlide + 1);
+      startHeroCarousel();
+    });
+
+    carouselDots.forEach((dot) => {
+      dot.addEventListener("click", () => {
+        showHeroSlide(Number(dot.dataset.slide));
+        startHeroCarousel();
+      });
+    });
+
+    carouselPause.addEventListener("click", () => {
+      carouselPaused = !carouselPaused;
+      carouselPause.textContent = carouselPaused ? "Играть" : "Пауза";
+      carouselPause.setAttribute(
+        "aria-label",
+        carouselPaused ? "Запустить слайдер" : "Остановить слайдер"
+      );
+      startHeroCarousel();
+    });
+
+    heroSection.addEventListener("mouseenter", () => {
+      window.clearInterval(carouselTimer);
+    });
+
+    heroSection.addEventListener("mouseleave", () => {
+      startHeroCarousel();
+    });
+
+    heroSection.addEventListener("focusin", () => {
+      window.clearInterval(carouselTimer);
+    });
+
+    heroSection.addEventListener("focusout", () => {
+      if (!carouselPaused) {
+        startHeroCarousel();
+      }
+    });
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      carouselPaused = true;
+      carouselPause.textContent = "Играть";
+    }
+
+    startHeroCarousel();
   </script>
 </body>
 </html>
